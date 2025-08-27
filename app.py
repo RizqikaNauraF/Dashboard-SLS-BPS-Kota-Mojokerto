@@ -145,6 +145,7 @@ kecamatan_pilihan = st.sidebar.selectbox(
 )
 
 # ===================== Main Page ===================== #
+st.write(f"📅 Data terakhir diperbarui pada: Selasa, 26 Agustus 2025, pukul 08:00")
 st.title("📊 Dashboard SLS — BPS Kota Mojokerto")
 st.header("PLKUMKM vs KDM")
 st.caption("Definisi: Selisih = KDM − PLKUMKM. 0 = Match, <0 = Over/Bagus, >0 = Kurang.")
@@ -190,87 +191,6 @@ sort_dir = st.radio(
 )
 ascending = True if sort_dir.startswith("Terkecil") else False
 
-
-# # ---- Akumulasi per Kelurahan ---- #
-# st.markdown("### 🏠 Akumulasi per Kelurahan")
-
-# if not view.empty:
-#     kel_summary = (
-#         view.groupby("kelurahan")
-#         .agg({
-#             "plkumkm": "sum",
-#             "kdm": "sum",
-#             "selisih": "sum",
-#             "id_sls": "count"
-#         })
-#         .rename(columns={"id_sls": "jumlah_sls"})
-#         .reset_index()
-#         .sort_values("selisih", ascending=ascending)
-#         .reset_index(drop=True)
-#     )
-    
-#     # Tambah kolom ranking
-#     kel_summary["ranking_selisih"] = kel_summary["selisih"].rank(
-#         method="min", ascending=ascending).astype(int)
-
-#     # Reorder supaya ranking di paling kiri
-#     cols = ["ranking_selisih"] + [c for c in kel_summary.columns if c != "ranking_selisih"]
-#     kel_summary = kel_summary[cols]
-
-#     st.dataframe(kel_summary, use_container_width=True, hide_index=True)
-# else:
-#     st.info("Tidak ada data untuk ditampilkan pada akumulasi kelurahan.")
-
-
-
-
-
-
-
-# # ---- Akumulasi per Kelurahan ---- #
-# st.markdown("### 🏠 Akumulasi per Kelurahan")
-
-# if not view.empty:
-#     kel_summary = (
-#         view.groupby("kelurahan")
-#         .agg({
-#             "plkumkm": "sum",
-#             "kdm": "sum",
-#             "selisih": "sum",
-#             "id_sls": "count"
-#         })
-#         .rename(columns={"id_sls": "jumlah_sls"})
-#         .reset_index()
-#         .sort_values("selisih", ascending=ascending)
-#         .reset_index(drop=True)
-#     )
-    
-#     # Tambah kolom ranking
-#     kel_summary["ranking_selisih"] = kel_summary["selisih"].rank(
-#         method="min", ascending=ascending).astype(int)
-
-#     # Reorder supaya ranking di paling kiri
-#     cols = ["ranking_selisih"] + [c for c in kel_summary.columns if c != "ranking_selisih"]
-#     kel_summary = kel_summary[cols]
-
-#     # Fungsi pewarnaan untuk kolom selisih
-#     def color_selisih(val):
-#         if val < 0:
-#             return "background-color: lightgreen; color: black;"
-#         elif val == 0:
-#             return "background-color: khaki; color: black;"
-#         else:  # > 0
-#             return "background-color: lightcoral; color: black;"
-
-#     # Terapkan styling hanya ke kolom 'selisih'
-#     styled_df = kel_summary.style.applymap(color_selisih, subset=["selisih"])
-
-#     st.dataframe(styled_df, use_container_width=True, hide_index=True)
-# else:
-#     st.info("Tidak ada data untuk ditampilkan pada akumulasi kelurahan.")
-
-
-
 # ---- Warna untuk Selisih ---- #
 COLOR_HIJAU, COLOR_KUNING, COLOR_MERAH = "#e9f7ef", "#fff9db", "#fdecea"
 
@@ -281,7 +201,6 @@ def row_style(row):
         return [f"background-color: {COLOR_KUNING}" for _ in row]
     else:
         return [f"background-color: {COLOR_MERAH}" for _ in row]
-
 
 # ---- Akumulasi per Kelurahan ---- #
 st.markdown("### 🏠 Akumulasi per Kelurahan")
@@ -352,12 +271,6 @@ view_sorted["ranking_selisih"] = view_sorted["selisih"].rank(
 # ---- Tabel SLS ---- #
 st.subheader("📋 Tabel SLS")
 show_cols = ["ranking_selisih", "id_sls", "nama_sls", "kecamatan", "kelurahan", "plkumkm", "kdm", "selisih", "kategori"]
-# COLOR_HIJAU, COLOR_KUNING, COLOR_MERAH = "#e9f7ef", "#fff9db", "#fdecea"
-
-# def row_style(row):
-#     if row["selisih"] < 0: return [f"background-color: {COLOR_HIJAU}" for _ in row]
-#     elif row["selisih"] == 0: return [f"background-color: {COLOR_KUNING}" for _ in row]
-#     else: return [f"background-color: {COLOR_MERAH}" for _ in row]
 
 styled_sls = view_sorted[show_cols].style.apply(row_style, axis=1)
 st.dataframe(styled_sls, use_container_width=True, hide_index=True)
