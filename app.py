@@ -6,6 +6,7 @@ import streamlit as st
 import plotly.express as px
 from datetime import datetime
 
+
 # PDF export
 try:
     from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
@@ -16,8 +17,12 @@ try:
 except Exception:
     HAS_PDF = False
 
-st.set_page_config(page_title="Dashboard SLS", layout="wide", initial_sidebar_state="collapsed")
-
+st.set_page_config(
+    page_title="Dashboard SLS",
+    page_icon="📊",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 # ===================== Mapping ===================== #
 COLMAP = {
     "id sls": "id_sls", "id_sls": "id_sls", "idsls": "id_sls", "id": "id_sls",
