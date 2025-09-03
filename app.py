@@ -23,6 +23,15 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+st.markdown("""
+<style>
+    .stApp {
+        background-color: #f5f7fa;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # ===================== Mapping ===================== #
 COLMAP = {
     "id sls": "id_sls", "id_sls": "id_sls", "idsls": "id_sls", "id": "id_sls",
@@ -176,22 +185,62 @@ if kelurahan_pilihan:
     view = view[view["kelurahan"].isin(kelurahan_pilihan)]
 
 
+# # ---- KPI ---- #
+# col1, col2, col3, col4 = st.columns(4)
+# col1.metric("Total PLKUMKM", f"{int(view['plkumkm'].sum()):,}")
+# col2.metric("Total KDM", f"{int(view['kdm'].sum()):,}")
+# col3.metric("Σ Selisih", f"{int(view['selisih'].sum()):,}")
+# col4.metric("Jumlah SLS", f"{len(view):,}")
+
+# col5, col6, col7 = st.columns(3)
+# col5.metric("Match (=0)", int((view['selisih'] == 0).sum()))
+# col6.metric("Kurang (>0)", int((view['selisih'] > 0).sum()))
+# col7.metric("Bagus/Over (<0)", int((view['selisih'] < 0).sum()))
+
 # ---- KPI ---- #
-col1, col2, col3, col4 = st.columns(4)
-col1.metric("Total PLKUMKM", f"{int(view['plkumkm'].sum()):,}")
-col2.metric("Total KDM", f"{int(view['kdm'].sum()):,}")
-col3.metric("Σ Selisih", f"{int(view['selisih'].sum()):,}")
-col4.metric("Jumlah SLS", f"{len(view):,}")
+st.subheader("📊 Statistik Ringkas")
 
-col5, col6, col7 = st.columns(3)
-col5.metric("Match (=0)", int((view['selisih'] == 0).sum()))
-col6.metric("Kurang (>0)", int((view['selisih'] > 0).sum()))
-col7.metric("Bagus/Over (<0)", int((view['selisih'] < 0).sum()))
+st.markdown(f"""
+<div style="display:flex; flex-wrap:wrap; gap:20px; margin-bottom:20px;">
+    <div style="flex:1 1 200px; background:#2ECC71; padding:20px; border-radius:12px; color:white; text-align:center;">
+        <h4>Total PLKUMKM</h4>
+        <p style="font-size:22px; font-weight:bold;">{int(view['plkumkm'].sum()):,}</p>
+    </div>
+    <div style="flex:1 1 200px; background:#3498DB; padding:20px; border-radius:12px; color:white; text-align:center;">
+        <h4>Total KDM</h4>
+        <p style="font-size:22px; font-weight:bold;">{int(view['kdm'].sum()):,}</p>
+    </div>
+    <div style="flex:1 1 200px; background:#E67E22; padding:20px; border-radius:12px; color:white; text-align:center;">
+        <h4>Σ Selisih</h4>
+        <p style="font-size:22px; font-weight:bold;">{int(view['selisih'].sum()):,}</p>
+    </div>
+    <div style="flex:1 1 200px; background:#9B59B6; padding:20px; border-radius:12px; color:white; text-align:center;">
+        <h4>Jumlah SLS</h4>
+        <p style="font-size:22px; font-weight:bold;">{len(view):,}</p>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
-# ---- Pilih Urutan Ranking ---- #
+st.markdown(f"""
+<div style="display:flex; flex-wrap:wrap; gap:20px; margin-bottom:20px;">
+    <div style="flex:1 1 200px; background:#1ABC9C; padding:20px; border-radius:12px; color:white; text-align:center;">
+        <h4>✅ Match (=0)</h4>
+        <p style="font-size:22px; font-weight:bold;">{int((view['selisih'] == 0).sum())}</p>
+    </div>
+    <div style="flex:1 1 200px; background:#F1C40F; padding:20px; border-radius:12px; color:white; text-align:center;">
+        <h4>⚠️ Kurang (&gt;0)</h4>
+        <p style="font-size:22px; font-weight:bold;">{int((view['selisih'] > 0).sum())}</p>
+    </div>
+    <div style="flex:1 1 200px; background:#E74C3C; padding:20px; border-radius:12px; color:white; text-align:center;">
+        <h4>📈 Bagus/Over (&lt;0)</h4>
+        <p style="font-size:22px; font-weight:bold;">{int((view['selisih'] < 0).sum())}</p>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
 sort_dir = st.radio(
     "Urutkan Ranking Selisih",
-    ["Terkecil → Terbesar", "Terbesar → Terkecil"],
+    ["Terbesar → Terkecil", "Terkecil → Terbesar"],
     index=0
 )
 ascending = True if sort_dir.startswith("Terkecil") else False
@@ -206,6 +255,38 @@ def row_style(row):
         return [f"background-color: {COLOR_KUNING}" for _ in row]
     else:
         return [f"background-color: {COLOR_MERAH}" for _ in row]
+
+# # ---- Akumulasi per Kelurahan ---- #
+# st.markdown("### 🏠 Akumulasi per Kelurahan")
+
+# if not view.empty:
+#     kel_summary = (
+#         view.groupby("kelurahan")
+#         .agg({
+#             "plkumkm": "sum",
+#             "kdm": "sum",
+#             "selisih": "sum",
+#             "id_sls": "count"
+#         })
+#         .rename(columns={"id_sls": "jumlah_sls"})
+#         .reset_index()
+#         .sort_values("selisih", ascending=ascending)
+#         .reset_index(drop=True)
+#     )
+
+#     kel_summary["ranking_selisih"] = kel_summary["selisih"].rank(
+#         method="min", ascending=ascending
+#     ).astype(int)
+
+#     # urutin ranking_selisih ke paling kiri
+#     cols = ["ranking_selisih"] + [c for c in kel_summary.columns if c != "ranking_selisih"]
+#     kel_summary = kel_summary[cols]
+
+#     styled_kel = kel_summary.style.apply(row_style, axis=1)
+#     st.dataframe(styled_kel, use_container_width=True, hide_index=True)
+
+# else:
+#     st.info("Tidak ada data untuk ditampilkan pada akumulasi kelurahan.")
 
 # ---- Akumulasi per Kelurahan ---- #
 st.markdown("### 🏠 Akumulasi per Kelurahan")
@@ -233,12 +314,42 @@ if not view.empty:
     cols = ["ranking_selisih"] + [c for c in kel_summary.columns if c != "ranking_selisih"]
     kel_summary = kel_summary[cols]
 
-    styled_kel = kel_summary.style.apply(row_style, axis=1)
-    st.dataframe(styled_kel, use_container_width=True, hide_index=True)
+    # =========================
+    # Custom HTML Table + Scroll
+    # =========================
+    html = """
+    <div style="max-height:500px; overflow-y:auto; border:1px solid #ddd; border-radius:8px;">
+    <table style="width:100%; border-collapse:collapse; font-size:14px;">
+      <tr style="background-color:#117A65; color:white; text-align:left; position:sticky; top:0; z-index:1;">
+        <th style="padding:8px;">Rank</th>
+        <th style="padding:8px;">Kelurahan</th>
+        <th style="padding:8px;">Total PLKUMKM</th>
+        <th style="padding:8px;">Total KDM</th>
+        <th style="padding:8px;">Σ Selisih</th>
+        <th style="padding:8px;">Jumlah SLS</th>
+      </tr>
+    """
+
+    for _, row in kel_summary.iterrows():
+        warna_selisih = "green" if row["selisih"] < 0 else ("red" if row["selisih"] > 0 else "black")
+        html += f"""
+      <tr style="background-color:#f9f9f9;">
+        <td style="padding:8px;">{row['ranking_selisih']}</td>
+        <td style="padding:8px;">{row['kelurahan']}</td>
+        <td style="padding:8px;">{row['plkumkm']:,}</td>
+        <td style="padding:8px;">{row['kdm']:,}</td>
+        <td style="padding:8px; color:{warna_selisih};">{row['selisih']:,}</td>
+        <td style="padding:8px;">{row['jumlah_sls']:,}</td>
+      </tr>
+    """
+
+    html += "</table></div>"
+
+    # Render ke Streamlit
+    st.markdown(html, unsafe_allow_html=True)
 
 else:
     st.info("Tidak ada data untuk ditampilkan pada akumulasi kelurahan.")
-
 
 # ---- Controls lain ---- #
 st.markdown("---")
@@ -273,28 +384,62 @@ view_sorted = view.sort_values("selisih", ascending=ascending).reset_index(drop=
 view_sorted["ranking_selisih"] = view_sorted["selisih"].rank(
     method="min", ascending=ascending).astype(int)
 
+# # ---- Tabel SLS ---- #
+# st.subheader("📋 Tabel SLS")
+# show_cols = ["ranking_selisih", "id_sls", "nama_sls", "kecamatan", "kelurahan", "plkumkm", "kdm", "selisih", "kategori"]
+
+# styled_sls = view_sorted[show_cols].style.apply(row_style, axis=1)
+# st.dataframe(styled_sls, use_container_width=True, hide_index=True)
+
 # ---- Tabel SLS ---- #
 st.subheader("📋 Tabel SLS")
 show_cols = ["ranking_selisih", "id_sls", "nama_sls", "kecamatan", "kelurahan", "plkumkm", "kdm", "selisih", "kategori"]
 
-styled_sls = view_sorted[show_cols].style.apply(row_style, axis=1)
-st.dataframe(styled_sls, use_container_width=True, hide_index=True)
+# Filter kolom
+sls_table = view_sorted[show_cols]
 
-# ---- Grafik ---- #
-st.markdown("---")
-st.subheader("📊 Grafik Ranking Selisih")
-if not view_sorted.empty:
-    fig = px.bar(view_sorted, x="nama_sls", y="selisih",
-                 hover_data=["id_sls", "kecamatan", "kelurahan", "plkumkm", "kdm", "kategori"],
-                 title=f"Ranking Selisih (urut: {'Naik' if ascending else 'Turun'})")
-    fig.update_layout(xaxis_tickangle=-45, height=500)
-    st.plotly_chart(fig, use_container_width=True)
-else:
-    st.info("Tidak ada data untuk divisualisasikan.")
+# =========================
+# Custom HTML Table + Scroll
+# =========================
+html = """
+<div style="max-height:500px; overflow-y:auto; border:1px solid #ddd; border-radius:8px;">
+<table style="width:100%; border-collapse:collapse; font-size:14px;">
+  <tr style="background-color:#117A65; color:white; text-align:left; position:sticky; top:0; z-index:1;">
+    <th style="padding:8px;">Rank</th>
+    <th style="padding:8px;">ID SLS</th>
+    <th style="padding:8px;">Nama SLS</th>
+    <th style="padding:8px;">Kecamatan</th>
+    <th style="padding:8px;">Kelurahan</th>
+    <th style="padding:8px;">Total PLKUMKM</th>
+    <th style="padding:8px;">Total KDM</th>
+    <th style="padding:8px;">Σ Selisih</th>
+    <th style="padding:8px;">Kategori</th>
+  </tr>
+"""
+
+for _, row in sls_table.iterrows():
+    warna_selisih = "green" if row["selisih"] < 0 else ("red" if row["selisih"] > 0 else "black")
+    html += f"""
+  <tr style="background-color:#f9f9f9;">
+    <td style="padding:8px;">{row['ranking_selisih']}</td>
+    <td style="padding:8px;">{row['id_sls']}</td>
+    <td style="padding:8px;">{row['nama_sls']}</td>
+    <td style="padding:8px;">{row['kecamatan']}</td>
+    <td style="padding:8px;">{row['kelurahan']}</td>
+    <td style="padding:8px;">{row['plkumkm']:,}</td>
+    <td style="padding:8px;">{row['kdm']:,}</td>
+    <td style="padding:8px; color:{warna_selisih};">{row['selisih']:,}</td>
+    <td style="padding:8px;">{row['kategori']}</td>
+  </tr>
+"""
+
+html += "</table></div>"
+
+# Render ke Streamlit
+st.markdown(html, unsafe_allow_html=True)
 
 # ---- Unduhan ---- #
-st.markdown("---")
-st.subheader("⬇️ Unduh Hasil (sesuai filter)")
+st.subheader("⬇️ Unduh Hasil Tabel SLS (sesuai filter)")
 colx, coly = st.columns(2)
 with colx:
     st.download_button("💾 Download Excel",
@@ -314,6 +459,18 @@ with coly:
         st.info("Export PDF butuh paket 'reportlab'. Install: pip install reportlab")
 
 st.caption("Gunakan pencarian & filter kategori/kecamatan/kelurahan untuk fokus. Urutkan Selisih agar terlihat mana yang match, over (bagus), atau masih kurang.")
+
+# ---- Grafik ---- #
+st.markdown("---")
+st.subheader("📊 Grafik Ranking Selisih")
+if not view_sorted.empty:
+    fig = px.bar(view_sorted, x="nama_sls", y="selisih",
+                 hover_data=["id_sls", "kecamatan", "kelurahan", "plkumkm", "kdm", "kategori"],
+                 title=f"Ranking Selisih (urut: {'Naik' if ascending else 'Turun'})")
+    fig.update_layout(xaxis_tickangle=-45, height=500)
+    st.plotly_chart(fig, use_container_width=True)
+else:
+    st.info("Tidak ada data untuk divisualisasikan.")
 
 st.markdown("""
                 <hr style="border: 0.5px solid #ccc;" />
