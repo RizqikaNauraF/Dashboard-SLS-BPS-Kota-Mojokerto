@@ -159,7 +159,7 @@ kecamatan_pilihan = st.sidebar.selectbox(
 )
 
 # ===================== Main Page ===================== #
-st.write(f"📅 Data terakhir diperbarui pada: Senin, 8 September 2025, pukul: 05.00")
+st.write(f"📅 Data terakhir diperbarui pada: Senin, 15 September 2025, pukul: 05.00")
 st.title("📊 Dashboard SLS — BPS Kota Mojokerto")
 st.header("PLKUMKM vs KDM")
 st.caption("Definisi: Selisih = KDM − PLKUMKM. 0 = Match, <0 = Over/Bagus, >0 = Kurang.")
