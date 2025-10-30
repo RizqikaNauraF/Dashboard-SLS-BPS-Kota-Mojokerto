@@ -161,9 +161,9 @@ kecamatan_pilihan = st.sidebar.selectbox(
 # ===================== Main Page ===================== #
 col1, col2, col3 = st.columns([5, 1, 1])
 with col2:
-    st.image("Logo BPS.png", use_column_width=False)
+    st.image("Logo BPS.png", use_container_width=False)
 with col3:
-    st.image("Logo SE 26.png", use_column_width=False)
+    st.image("Logo SE 26.png", use_container_width=False)
 
 st.write(f"📅 Data terakhir diperbarui pada: Senin, 27 Oktober 2025, pukul: 08.00")
 st.title("📊 Dashboard Perolehan Tagging KDM per SLS BPS Kota Mojokerto — Sensus Ekonomi 2026")
