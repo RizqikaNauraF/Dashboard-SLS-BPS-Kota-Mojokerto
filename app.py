@@ -159,10 +159,15 @@ kecamatan_pilihan = st.sidebar.selectbox(
 )
 
 # ===================== Main Page ===================== #
+col1, col2, col3 = st.columns([5, 1, 1])
+with col2:
+    st.image("Logo BPS.png", use_container_width=False)
+with col3:
+    st.image("Logo SE 26.png", use_container_width=False)
+
 st.write(f"📅 Data terakhir diperbarui pada: Senin, 27 Oktober 2025, pukul: 08.00")
-st.title("📊 Dashboard SLS KDM — BPS Kota Mojokerto")
+st.title("📊 Dashboard Perolehan Tagging KDM per SLS BPS Kota Mojokerto — Sensus Ekonomi 2026")
 st.header("PLKUMKM vs KDM")
-st.caption("Definisi: Selisih = KDM − PLKUMKM. 0 = Match, <0 = Over/Bagus, >0 = Kurang.")
 
 # ---- Filter Kelurahan (menyesuaikan pilihan kecamatan) ---- #
 if kecamatan_pilihan == "(Semua)":
@@ -289,7 +294,8 @@ def row_style(row):
 #     st.info("Tidak ada data untuk ditampilkan pada akumulasi kelurahan.")
 
 # ---- Akumulasi per Kelurahan ---- #
-st.markdown("### 🏠 Akumulasi per Kelurahan")
+st.subheader("🏠 Akumulasi per Kelurahan")
+st.caption("Definisi: Selisih = KDM − PLKUMKM. 0 = Match, <0 = Over/Bagus, >0 = Kurang.")
 
 if not view.empty:
     kel_summary = (
