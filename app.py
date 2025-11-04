@@ -165,7 +165,7 @@ with col2:
 with col3:
     st.image("Logo SE 26.png", use_container_width=False)
 
-st.write(f"📅 Data terakhir diperbarui pada: Senin, 27 Oktober 2025, pukul: 08.00")
+st.write(f"📅 Data terakhir diperbarui pada: Senin, 3 November 2025, pukul: 07.00")
 st.title("📊 Dashboard Perolehan Tagging KDM per SLS BPS Kota Mojokerto — Sensus Ekonomi 2026")
 st.header("PLKUMKM vs KDM")
 
